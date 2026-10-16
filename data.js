@@ -1,5 +1,4 @@
-/* GASS SHOPPING BD - demo catalogue.
-   Every product, brand, seller and review below is invented for this portfolio project. */
+/* Demo catalogue part 1 of 3. */
 (function (G) {
   'use strict';
 
@@ -116,6 +115,10 @@
     };
   });
 
+})(window.GASS = window.GASS || {});
+/* Demo catalogue part 2 of 3. */
+(function (G) {
+  'use strict';
   G.SPEC = {
     fashion: [
       ['Material', 'উপাদান', 'Soft cotton blend', 'নরম কটন মিশ্রণ'],
@@ -198,6 +201,10 @@
     books: ['Made for people who like to write things down. Lies flat, takes ink well.', 'যারা লিখে রাখতে ভালোবাসেন তাদের জন্য। সমান হয়ে খোলে, কালি ভালো ধরে।'],
     mart: ['Sourced from trusted growers and packed fresh. Delivered sealed, with the packing date on the label.', 'বিশ্বস্ত চাষি থেকে সংগ্রহ, তাজা প্যাকিং। সিল করা অবস্থায় পৌঁছায়, লেবেলে প্যাকিংয়ের তারিখ থাকে।']
   };
+})(window.GASS = window.GASS || {});
+       /* Demo catalogue part 3 of 3. */
+(function (G) {
+  'use strict';
 
   G.VOUCHERS = [
     { code: 'GASS50',    type: 'flat', val: 50,  min: 500,  en: '৳50 off orders over ৳500',          bn: '৫০০ টাকার বেশি অর্ডারে ৫০ টাকা ছাড়' },
@@ -240,4 +247,8 @@
   G.ratingSplit = function (p) {
     var shift = p.rating - 4.4, w = [0.02 - shift * 0.02, 0.03 - shift * 0.03, 0.08 - shift * 0.05, 0.25 - shift * 0.1, 0.62 + shift * 0.2];
     w = w.map(function (x) { return Math.max(0.01, x); });
-    var sum = w.reduce(function (a, b)
+    var sum = w.reduce(function (a, b) { return a + b; }, 0);
+    return w.map(function (x) { return Math.round(x / sum * 100); }).reverse();
+  };
+})(window.GASS = window.GASS || {});
+                                                                                                                        
