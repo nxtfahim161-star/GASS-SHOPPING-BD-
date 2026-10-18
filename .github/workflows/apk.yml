@@ -27,14 +27,23 @@ jobs:
         run: |
           cat site1.txt site2.txt site3.txt site4.txt | tr -d ' \r\n' | base64 -d | bunzip2 > index.html
           echo "dc4ef9d47a9dc951b032602814e2f9f20ccdf233ee82becb33a99897d743fb59  index.html" | sha256sum -c - || { echo "site1-4.txt paste is incomplete or wrong"; exit 1; }
-          if [ ! -f icon-512.png ]; then
-            convert -size 512x512 xc:'#0b3d33' -fill '#c6f24a' -draw 'roundrectangle 96,96 416,416 90,90' -fill '#14301f' -draw 'roundrectangle 176,230 336,370 14,14' icon-512.png || true
-          fi
+          python3 - <<'PY'
+          import zlib, struct
+          N = 512
+          def px(x, y):
+              if 96 <= x < 416 and 96 <= y < 416:
+                  if 176 <= x < 336 and 230 <= y < 370: return (20, 48, 31)
+                  return (198, 242, 74)
+              return (11, 61, 51)
+          raw = b''.join(b'\x00' + b''.join(bytes(px(x, y)) for x in range(N)) for y in range(N))
+          def chunk(t, d): return struct.pack('>I', len(d)) + t + d + struct.pack('>I', zlib.crc32(t + d) & 0xffffffff)
+          open('icon-512.png', 'wb').write(b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', N, N, 8, 2, 0, 0, 0)) + chunk(b'IDAT', zlib.compress(raw, 9)) + chunk(b'IEND', b''))
+          PY
           P=android
           J=$P/app/src/main/java/bd/gass/shopping
           mkdir -p $J $P/app/src/main/assets $P/app/src/main/res/mipmap-xxxhdpi
           cp index.html $P/app/src/main/assets/index.html
-          if [ -f icon-512.png ]; then cp icon-512.png $P/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png; else sed -i '/android:icon=/d' $P/app/src/main/AndroidManifest.xml; fi
+          cp icon-512.png $P/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
           cat > $P/settings.gradle <<'EOF'
           pluginManagement {
               repositories { google(); mavenCentral(); gradlePluginPortal() }
@@ -152,4 +161,3 @@ jobs:
           tag_name: apk-${{ github.run_number }}
           name: GASS SHOPPING BD APK ${{ github.run_number }}
           files: GASS-SHOPPING-BD.apk
-          
